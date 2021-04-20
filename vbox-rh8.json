@@ -1,0 +1,42 @@
+{
+    "variables": {
+        "guest_hostname": "packer-rh8",
+        "password": "redhat",
+        "iso_location": "http://",
+        "checksum": "sha256:"
+    },
+    "builders": [
+        {
+            "boot_command": [
+                "<up><tab>",
+                "text ks=http://{{.HTTPIP}}:{{.HTTPPort}}/rh8/kickstart.cfg",
+                "<enter><wait>"
+            ],
+            "boot_wait": "5s",
+            "cpus": 2,
+            "memory": 4096,
+            "format": "ova",
+            "guest_os_type": "RedHat_64",
+            "headless": true,
+            "iso_checksum": "{{ user `checksum` }}",
+            "iso_url": "{{ user `iso_location` }}",
+            "output_directory": "{{ user `guest_hostname` }}_vbox",
+            "shutdown_command": "echo '{{ user `password` }}' | sudo -S /sbin/halt -h -p",
+            "ssh_password": "{{ user `password` }}",
+            "ssh_username": "root",
+            "ssh_wait_timeout": "20m",
+            "type": "virtualbox-iso",
+            "vm_name": "{{ user `guest_hostname` }}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "execute_command": "echo '{{ user `password` }}' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+            "inline": [
+                "sleep 30",
+                "sudo hostnamectl set-hostname '{{ user `guest_hostname` }}'"
+            ]
+        }
+    ]
+}
