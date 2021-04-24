@@ -1,0 +1,19 @@
+#cloud-config
+autoinstall:
+  version: 1
+  refresh-installer:
+    update: yes
+  packages:
+    - vim
+    - qemu-guest-agent
+    - git
+  identity:
+    username: ansible
+    password: <YOUR_MKPASSWD_512>
+  ssh:
+    allow-pw: true
+    install-server: true
+  late-commands:
+    - "echo 'Defaults:ansible !requiretty' > /target/etc/sudoers.d/ansible"
+    - "echo 'ansible ALL=(ALL) NOPASSWD: ALL' >> /target/etc/sudoers.d/ansible"
+    - "chmod 440 /target/etc/sudoers.d/ansible"
